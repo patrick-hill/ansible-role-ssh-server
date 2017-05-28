@@ -1,0 +1,4 @@
+---
+- name: SSH --> Ubuntu install
+  include: "ubuntu.yml"
+  when: ansible_distribution in [ "Ubuntu", "Linuxmint" ]

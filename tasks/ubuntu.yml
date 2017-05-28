@@ -1,0 +1,34 @@
+---
+- name: Install
+  apt: pkg={{ item }} state=installed
+  with_items:
+        - openssh-server
+
+# Copy Config file
+- name: Backup Config
+  copy: src="{{ ssh_config_file }}" dest="{{ ssh_config_file }}.bak"
+  become: yes
+  
+# Disable password login
+- name: Disable Password Login
+  lineinfile: 
+    dest: "{{ ssh_config_file }}"
+    state: present
+    regexp: "{{ item.regex }}"
+    line: "{{ item.line }}"
+    create: yes
+  become: yes
+  with_items:
+    - { regex: "^PasswordAuthentication *", line: "PasswordAuthentication no" }
+    - { regex: "^AllowUsers *", line: "AllowUsers {{ os_username }}" }
+    - { regex: "^Port *", line: "Port {{ ssh_port }}" }
+    # - { regex: "^ForwardX11 *", line: "ForwardX11 yes" }
+    # - { regex: "^Tunnel *", line: "Tunnel yes" }
+
+- name: Open firewall port
+  shell: ufw allow {{ ssh_port }}
+  become: yes
+
+- name: Restart Service
+  service: name=ssh state=restarted
+  become: yes
