@@ -1,13 +1,18 @@
 ---
 - name: Install
-  apt: pkg={{ item }} state=installed
+  apt:
+    pkg: "{{ item }}"
+    state: installed
   with_items:
         - openssh-server
 
 # Copy Config file
 - name: Backup Config
-  copy: src="{{ ssh_config_file }}" dest="{{ ssh_config_file }}.bak"
+  copy:
+    src: "{{ ssh_config_file }}"
+    dest: "{{ ssh_config_file }}.bak"
   become: yes
+  ignore_errors: true
   
 # Disable password login
 - name: Disable Password Login
